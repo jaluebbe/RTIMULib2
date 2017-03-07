@@ -433,8 +433,8 @@ void RTQuaternion::toAngleVector(RTFLOAT& angle, RTVector3& vec)
         vec.setZ(0);
     } else {
         vec.setX(m_data[1] / sinHalfTheta);
-        vec.setY(m_data[1] / sinHalfTheta);
-        vec.setZ(m_data[1] / sinHalfTheta);
+        vec.setY(m_data[2] / sinHalfTheta);
+        vec.setZ(m_data[3] / sinHalfTheta);
     }
     angle = 2.0 * halfTheta;
 }
