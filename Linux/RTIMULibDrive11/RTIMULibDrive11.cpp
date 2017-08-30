@@ -99,17 +99,17 @@ int main()
             //  display 5 times per second
 
             if ((now - displayTimer) > 200000) {
-                printf("Sample rate %d: %s\n", sampleRate, RTMath::displayDegrees("", imuData.fusionPose));
+                printf("Sample rate %d: %s", sampleRate, RTMath::displayDegrees("", imuData.fusionPose));
 
                 if (pressure != NULL) {
-                    printf("Pressure: %4.1f, height above sea level: %4.1f, temperature: %4.1f",
+                    printf(", pressure: %4.1f, height above sea level: %4.1f, temperature: %4.1f",
                            imuData.pressure, RTMath::convertPressureToHeight(imuData.pressure), imuData.temperature);
                 }
                 if (humidity != NULL) {
                     printf(", humidity: %4.1f",
                            imuData.humidity);
                 }
-                printf("\n");
+                printf("\r");
 
                 fflush(stdout);
                 displayTimer = now;

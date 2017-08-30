@@ -172,6 +172,7 @@ bool RTIMUMagCal::magCalSaveRaw(const char *ellipsoidFitPath)
         // need to deal with ellipsoid fit processing
         rawFile = (char *)malloc(strlen(RTIMUCALDEFS_MAG_RAW_FILE) + strlen(ellipsoidFitPath) + 2);
         sprintf(rawFile, "%s/%s", ellipsoidFitPath, RTIMUCALDEFS_MAG_RAW_FILE);
+        printf("\nWriting to file: %s\n", rawFile);
         if ((file = fopen(rawFile, "w")) == NULL) {
             HAL_ERROR("Failed to open ellipsoid fit raw data file\n");
             return false;
@@ -201,7 +202,7 @@ bool RTIMUMagCal::magCalSaveCorr(const char *ellipsoidFitPath)
         }
         if (fscanf(file, "%f %f %f %f %f %f %f %f %f %f %f %f",
             a + 0, a + 1, a + 2, b + 0, b + 1, b + 2, b + 3, b + 4, b + 5, b + 6, b + 7, b + 8) != 12) {
-            HAL_ERROR("Ellipsoid corrcetion file didn't have 12 floats\n");
+            HAL_ERROR("Ellipsoid correction file didn't have 12 floats\n");
             fclose(file);
             return false;
         }

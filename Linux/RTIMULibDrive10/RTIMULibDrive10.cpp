@@ -88,13 +88,14 @@ int main()
             //  display 10 times per second
 
             if ((now - displayTimer) > 100000) {
-                printf("Sample rate %d: %s\n", sampleRate, RTMath::displayDegrees("", imuData.fusionPose));
+                printf("Sample rate %d: %s", sampleRate, RTMath::displayDegrees("", imuData.fusionPose));
 
                 if (pressure != NULL) {
-                    printf("Pressure: %4.1f, height above sea level: %4.1f, temperature: %4.1f\n",
+                    printf(", pressure: %4.1f, height above sea level: %4.1f, temperature: %4.1f",
                            imuData.pressure, RTMath::convertPressureToHeight(imuData.pressure), imuData.temperature);
                 }
 
+                printf("\r");
                 fflush(stdout);
                 displayTimer = now;
             }

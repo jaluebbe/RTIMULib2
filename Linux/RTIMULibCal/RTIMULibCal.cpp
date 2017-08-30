@@ -116,6 +116,15 @@ int main(int argc, char **argv)
         case 'a' :
             doAccelCal();
             break;
+                
+        case 'l' :
+            if (magCal->magCalSaveCorr(".")) {
+                printf("\nCorrected mag cals successfully loaded/saved!\n");
+            } else {
+                printf("\nFailed to load/save corrected mag cals!\n");
+            }
+            break;
+                
         }
     }
 
@@ -234,9 +243,20 @@ void doMagEllipsoidCal()
             magCal->newEllipsoidData(imuData.compass);
 
             if (magCal->magCalEllipsoidValid()) {
-                magCal->magCalSaveRaw(ELLIPSOID_FIT_DIR);
-                processEllipsoid();
-                return;
+                printf("\nSave (s) or process (p)?");
+                input = tolower(getchar());
+                switch (input) {
+                    case 's' :
+                        printf("\nSaving...\n");
+                        magCal->magCalSaveRaw(".");
+                        return;
+                    case 'p' :
+                        magCal->magCalSaveRaw(ELLIPSOID_FIT_DIR);
+                        processEllipsoid();
+                        return;
+                    default:
+                        return;
+                }
             }
             now = RTMath::currentUSecsSinceEpoch();
 
@@ -410,6 +430,7 @@ void displayMenu()
     printf("  m - calibrate magnetometer with min/max\n");
     printf("  e - calibrate magnetometer with ellipsoid (do min/max first)\n");
     printf("  a - calibrate accelerometers\n");
+    printf("  l - load pre-calculated ellipsoid values\n");
     printf("  x - exit\n\n");
     printf("Enter option: ");
 }
