@@ -24,6 +24,7 @@
 
 #include "RTFusionKalman4.h"
 #include "RTIMUSettings.h"
+#include "IMUDrivers/RTIMU.h"
 
 //  The QVALUE affects the gyro response.
 
@@ -58,21 +59,6 @@ void RTFusionKalman4::reset()
     m_compass = RTVector3();
     m_measuredPose = RTVector3();
     m_measuredQPose.fromEuler(m_measuredPose);
-    m_Rk.fill(0);
-    m_Q.fill(0);
-
-    // initialize process noise covariance matrix
-
-    for (int i = 0; i < KALMAN_STATE_LENGTH; i++)
-        for (int j = 0; j < KALMAN_STATE_LENGTH; j++)
-            m_Q.setVal(i, i, KALMAN_QVALUE);
-
-    // initialize observation noise covariance matrix
-
-
-    for (int i = 0; i < KALMAN_STATE_LENGTH; i++)
-        for (int j = 0; j < KALMAN_STATE_LENGTH; j++)
-            m_Rk.setVal(i, i, KALMAN_RVALUE);
  }
 
 void RTFusionKalman4::predict()
@@ -87,6 +73,13 @@ void RTFusionKalman4::predict()
     y2 = m_gyro.y() / (RTFLOAT)2.0;
     z2 = m_gyro.z() / (RTFLOAT)2.0;
 
+    /*
+    0 -x -y -z
+    x  0  z -y
+    y -z  0  x
+    z  y -x  0
+    */
+    
     m_Fk.setVal(0, 1, -x2);
     m_Fk.setVal(0, 2, -y2);
     m_Fk.setVal(0, 3, -z2);
@@ -118,8 +111,6 @@ void RTFusionKalman4::predict()
     m_PDot = m_Fk * m_Pkk;
     mat = m_Pkk * m_FkTranspose;
     m_PDot += mat;
-
-    // add in Q to get the new prediction
 
     m_Pkk_1 = m_PDot + m_Q;
 
@@ -180,6 +171,7 @@ void RTFusionKalman4::newIMUData(RTIMU_DATA& data, const RTIMUSettings *settings
         m_gyro = data.gyro;
     else
         m_gyro = RTVector3();
+
     m_accel = data.accel;
     m_compass = data.compass;
     m_compassValid = data.compassValid;
@@ -220,6 +212,7 @@ void RTFusionKalman4::newIMUData(RTIMU_DATA& data, const RTIMUSettings *settings
 
         predict();
         update();
+
         m_stateQ.toEuler(m_fusionPose);
         m_fusionQPose = m_stateQ;
 
@@ -235,4 +228,72 @@ void RTFusionKalman4::newIMUData(RTIMU_DATA& data, const RTIMUSettings *settings
     data.fusionQPoseValid = true;
     data.fusionPose = m_fusionPose;
     data.fusionQPose = m_fusionQPose;
+
+    m_Rk.fill(0);
+    // initialize observation noise covariance matrix
+    for (int i = 0; i < KALMAN_STATE_LENGTH; i++)
+        for (int j = 0; j < KALMAN_STATE_LENGTH; j++)
+            //m_Rk.setVal(i, i, KALMAN_RVALUE);
+            m_Rk.setVal(i, i, settings->m_kalmanRk);
+
+    // add in Q to get the new prediction
+    m_Q.fill(0);
+
+    // initialize process noise covariance matrix
+
+    for (int i = 0; i < KALMAN_STATE_LENGTH; i++)
+        for (int j = 0; j < KALMAN_STATE_LENGTH; j++) 
+            //m_Q.setVal(i, i, KALMAN_QVALUE);
+
+            m_Q.setVal(i, i, settings->m_kalmanQ);
+}
+
+//  this defines the accelerometer noise level
+
+#define RTIMU_FUZZY_GYRO_ZERO      0.20
+
+//  this defines the accelerometer noise level
+
+#define RTIMU_FUZZY_ACCEL_ZERO      0.05
+
+void RTFusionKalman4::gyroBiasInit(float samplerate)
+{
+    // sets up gyro bias calculation
+    m_gyroLearningAlpha = 0.01f / samplerate;
+    m_gyroContinuousAlpha = 0.004f / samplerate;
+    m_gyroSampleCount = 0;
+    m_gyroSampleRate = samplerate;
+}
+
+void RTFusionKalman4::handleGyroBias(RTIMU_DATA& imuData, RTIMUSettings *settings)
+{
+    RTVector3 deltaAccel = m_previousAccel;
+    deltaAccel -= imuData.accel;   // compute difference
+    m_previousAccel = imuData.accel;
+
+    int startuptime = 60;
+    // at startup, find gyro bias much faster
+    if (m_gyroSampleCount < (startuptime * m_gyroSampleRate) &&
+//        deltaAccel.length() < RTIMU_FUZZY_ACCEL_ZERO &&
+        imuData.gyro.length() < RTIMU_FUZZY_GYRO_ZERO) {
+        // what we are seeing on the gyros should be bias only so learn from this
+
+        settings->m_gyroBias.setX((1.0 - m_gyroLearningAlpha) * settings->m_gyroBias.x() + m_gyroLearningAlpha * imuData.gyro.x());
+        settings->m_gyroBias.setY((1.0 - m_gyroLearningAlpha) * settings->m_gyroBias.y() + m_gyroLearningAlpha * imuData.gyro.y());
+        settings->m_gyroBias.setZ((1.0 - m_gyroLearningAlpha) * settings->m_gyroBias.z() + m_gyroLearningAlpha * imuData.gyro.z());
+
+        if (m_gyroSampleCount == (startuptime * m_gyroSampleRate)) {
+            // this could have been true already of course
+            settings->m_gyroBiasValid = true;
+//                settings->saveSettings(); // should NOT do file IO here
+        }
+    }
+
+    m_gyroSampleCount++;
+
+    settings->m_gyroBias.setX((1.0 - m_gyroContinuousAlpha) * settings->m_gyroBias.x() + m_gyroContinuousAlpha * imuData.gyro.x());
+    settings->m_gyroBias.setY((1.0 - m_gyroContinuousAlpha) * settings->m_gyroBias.y() + m_gyroContinuousAlpha * imuData.gyro.y());
+    settings->m_gyroBias.setZ((1.0 - m_gyroContinuousAlpha) * settings->m_gyroBias.z() + m_gyroContinuousAlpha * imuData.gyro.z());
+
+    imuData.gyro -= settings->m_gyroBias;
 }

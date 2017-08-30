@@ -32,6 +32,7 @@ RTIMULib currently supports the following IMUs:
 * STM LSM9DS0 single chip IMU.
 * STM LSM9DS1 single chip IMU.
 * L3GD20H + LSM303D (optionally with the LPS25H) as used on the Pololu AltIMU-10 v4.
+* STM LSM6DS33 + LIS3MDL (optionally with the LPS25H) as used on the Pololu MinIMU-9 v5 and AltIMU-10 v5.
 * L3GD20 + LSM303DLHC as used on the Adafruit 9-dof (older version with GD20 gyro) IMU. 
 * L3GD20H + LSM303DLHC (optionally with BMP180) as used on the new Adafruit 10-dof IMU.
 * Bosch BMX055 (although magnetometer support is experimental currently).
@@ -99,4 +100,7 @@ RTIMULib2 has two mechanisms that can be used to calibrate the magnetometers:
 
 Also, if using a non-standard axis rotation, magnetometer calibration (and accelerometer calibration if that has been performed) MUST be run AFTER changing the axis rotation.
 
+
+##Note:
+This is a fork of richards-tech's library - this version adds support for an IMU (no-name brand) containing an HMC5883L compass, an ADXL345 accelerometer, and an L3G4200D gyro.  This support is experimental and currently incomplete.  Some stuff is hard-coded that should be configurable, but it generally works reliably and gets accurate data from the sensors.
 

@@ -101,7 +101,7 @@ static PyMethodDef RTIMU_Settings_methods[] = {
             return Py_BuildValue("d", ((RTIMU_Settings*)self)->val->member); \
         }),                                                                  \
         (setter)([] (_object* self, PyObject *value, void *closure) {        \
-            long d = PyInt_AsLong(value);                                    \
+            double d = PyFloat_AsDouble(value);                              \
             if (PyErr_Occurred())                                            \
                 return -1;                                                   \
             ((RTIMU_Settings*)self)->val->member = d;                        \
@@ -178,6 +178,8 @@ static PyGetSetDef RTIMU_Settings_getset[] = {
     RTIMU_PARAM_VEC3(AccelCalMax, m_accelCalMax),
     RTIMU_PARAM_INT(GyroBiasValid, m_gyroBiasValid),
     RTIMU_PARAM_VEC3(GyroBias, m_gyroBias),
+    RTIMU_PARAM_FLOAT(KalmanRk, m_kalmanRk),
+    RTIMU_PARAM_FLOAT(KalmanQ, m_kalmanQ),
     RTIMU_PARAM_INT(MPU9150GyroAccelSampleRate, m_MPU9150GyroAccelSampleRate),
     RTIMU_PARAM_INT(MPU9150CompassSampleRate,m_MPU9150CompassSampleRate),
     RTIMU_PARAM_INT(MPU9150GyroAccelLpf, m_MPU9150GyroAccelLpf),
@@ -238,6 +240,15 @@ static PyGetSetDef RTIMU_Settings_getset[] = {
     RTIMU_PARAM_INT(LSM9DS1AccelLpf, m_LSM9DS1AccelLpf),
     RTIMU_PARAM_INT(LSM9DS1CompassSampleRate, m_LSM9DS1CompassSampleRate),
     RTIMU_PARAM_INT(LSM9DS1CompassFsr, m_LSM9DS1CompassFsr),
+    RTIMU_PARAM_INT(LSM6DS33LIS3MDLGyroSampleRate, m_LSM6DS33LIS3MDLGyroSampleRate),
+    RTIMU_PARAM_INT(LSM6DS33LIS3MDLGyroHpf, m_LSM6DS33LIS3MDLGyroHpf),
+    RTIMU_PARAM_INT(LSM6DS33LIS3MDLGyroFsr, m_LSM6DS33LIS3MDLGyroFsr),
+    RTIMU_PARAM_INT(LSM6DS33LIS3MDLAccelSampleRate, m_LSM6DS33LIS3MDLAccelSampleRate),
+    RTIMU_PARAM_INT(LSM6DS33LIS3MDLAccelFsr, m_LSM6DS33LIS3MDLAccelFsr),
+    RTIMU_PARAM_INT(LSM6DS33LIS3MDLAccelLpf, m_LSM6DS33LIS3MDLAccelLpf),
+    RTIMU_PARAM_INT(LSM6DS33LIS3MDLCompassSampleRate, m_LSM6DS33LIS3MDLCompassSampleRate),
+    RTIMU_PARAM_INT(LSM6DS33LIS3MDLCompassFsr, m_LSM6DS33LIS3MDLCompassFsr),
+    RTIMU_PARAM_INT(LSM6DS33LIS3MDLCompassPowerMode, m_LSM6DS33LIS3MDLCompassPowerMode),
 
     { NULL }
 };

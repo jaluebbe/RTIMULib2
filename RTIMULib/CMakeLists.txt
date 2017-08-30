@@ -48,6 +48,8 @@ SET(LIBRTIMU_SRCS
     RTFusionRTQF.cpp
     RTMath.cpp
     RTFusionKalman4.cpp
+    FusionMadgwick.cpp
+    FusionMahony.cpp
     RTIMUAccelCal.cpp
     RTIMUHal.cpp
     RTIMUMagCal.cpp
@@ -56,6 +58,7 @@ SET(LIBRTIMU_SRCS
     IMUDrivers/RTIMUGD20M303DLHC.cpp
     IMUDrivers/RTIMUGD20HM303DLHC.cpp
     IMUDrivers/RTIMUGD20HM303D.cpp
+    IMUDrivers/RTIMULSM6DS33LIS3MDL.cpp
     IMUDrivers/RTIMULSM9DS0.cpp
     IMUDrivers/RTIMULSM9DS1.cpp
     IMUDrivers/RTIMUMPU9150.cpp
@@ -72,6 +75,7 @@ SET(LIBRTIMU_SRCS
     IMUDrivers/RTHumidity.cpp
     IMUDrivers/RTHumidityHTS221.cpp
     IMUDrivers/RTHumidityHTU21D.cpp
+    IMUDrivers/RTIMUHMC5883LADXL345.cpp
 )
 
 IF(WIN32 AND QT5)

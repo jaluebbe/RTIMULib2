@@ -22,7 +22,10 @@
 #//  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 #//  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from distutils.core import setup, Extension
+try:
+    from setuptools import setup, Extension
+except ImportError:
+    from distutils.core import setup, Extension
 import os.path
 
 RTIMU_sources = [
@@ -31,6 +34,8 @@ RTIMU_sources = [
     "RTFusion.cpp",
     "RTFusionKalman4.cpp",
     "RTFusionRTQF.cpp",
+    "FusionMadgwick.cpp",
+    "FusionMahony.cpp",
     "RTIMUSettings.cpp",
     "IMUDrivers/RTIMU.cpp",
     "IMUDrivers/RTIMUNull.cpp",
@@ -40,10 +45,12 @@ RTIMU_sources = [
     "IMUDrivers/RTIMUGD20HM303D.cpp",
     "IMUDrivers/RTIMUGD20HM303DLHC.cpp",
     "IMUDrivers/RTIMUGD20M303DLHC.cpp",
+    "IMUDrivers/RTIMUHMC5883LADXL345.cpp",
     "IMUDrivers/RTIMULSM9DS0.cpp",
     "IMUDrivers/RTIMULSM9DS1.cpp",
     "IMUDrivers/RTIMUBMX055.cpp",
     "IMUDrivers/RTIMUBNO055.cpp",
+    "IMUDrivers/RTIMULSM6DS33LIS3MDL.cpp",
     "IMUDrivers/RTPressure.cpp",
     "IMUDrivers/RTPressureBMP180.cpp",
     "IMUDrivers/RTPressureLPS25H.cpp",
@@ -61,7 +68,7 @@ mod = Extension('RTIMU',
                 [ os.path.join(RTIMU_sourcedir, sr) for sr in RTIMU_sources],
                 include_dirs = [RTIMU_sourcedir],
                 extra_compile_args = ['-std=c++0x'],
-                define_macros = [("HAL_QUIET", None)]
+#                define_macros = [("HAL_QUIET", None)]
                 )
 
 setup (name = 'RTIMULib',

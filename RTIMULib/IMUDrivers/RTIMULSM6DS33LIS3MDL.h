@@ -21,34 +21,41 @@
 //  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 //  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+//  The LSM6DS33 + LIS3MDL driver code has been contributed by
+//  Torsten Kurbad <github@tk-webart.de>
 
-#ifndef _RTIMULIB_H
-#define	_RTIMULIB_H
+#ifndef _RTIMULSM6DS33LIS3MDL_H
+#define	_RTIMULSM6DS33LIS3MDL_H
 
-#include "RTIMULibDefs.h"
+#include "RTIMU.h"
 
-#include "RTMath.h"
+class RTIMULSM6DS33LIS3MDL : public RTIMU
+{
+public:
+    RTIMULSM6DS33LIS3MDL(RTIMUSettings *settings);
+    ~RTIMULSM6DS33LIS3MDL();
 
-#include "RTFusion.h"
+    virtual const char *IMUName() { return "LSM6DS33 + LIS3MDL"; }
+    virtual int IMUType() { return RTIMU_TYPE_LSM6DS33LIS3MDL; }
+    virtual bool IMUInit();
+    virtual int IMUGetPollInterval();
+    virtual bool IMURead();
 
-#include "RTIMUHal.h"
-#include "IMUDrivers/RTIMU.h"
-#include "IMUDrivers/RTIMUNull.h"
-#include "IMUDrivers/RTIMUMPU9150.h"
-#include "IMUDrivers/RTIMUMPU9255.h"
-#include "IMUDrivers/RTIMUGD20HM303D.h"
-#include "IMUDrivers/RTIMUGD20M303DLHC.h"
-#include "IMUDrivers/RTIMULSM9DS0.h"
+private:
+    bool setGyroCTRL2();
+    bool setGyroCTRL7();
+    bool setAccelCTRL1();
+    bool setCompassCTRL1();
+    bool setCompassCTRL2();
+    bool setCompassCTRL3();
+    bool setCompassCTRL4();
 
-#include "IMUDrivers/RTPressure.h"
-#include "IMUDrivers/RTPressureBMP180.h"
-#include "IMUDrivers/RTPressureLPS25H.h"
-#include "IMUDrivers/RTPressureMS5611.h"
+    unsigned char m_accelGyroSlaveAddr;                     // I2C address of LSM6DS33 accel and gyro
+    unsigned char m_compassSlaveAddr;                       // I2C address of LIS3MDL mag
 
-#include "IMUDrivers/RTHumidity.h"
-#include "IMUDrivers/RTHumidityHTS221.h"
+    RTFLOAT m_gyroScale;
+    RTFLOAT m_accelScale;
+    RTFLOAT m_compassScale;
+};
 
-#include "RTIMUSettings.h"
-
-
-#endif // _RTIMULIB_H
+#endif // _RTIMULSM6DS33LIS3MDL_H
